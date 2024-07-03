@@ -1,0 +1,177 @@
+---
+#non si usa proprio i was nel nostro caso, si usa soltanto W3SVC o iisreset /start
+
+#----------------------------------------#
+#             2- Start IIS
+#----------------------------------------#
+- name: Start IIS
+  hosts: 192.168.1.12
+  become: yes
+  become_user: Administrator
+  vars:
+    skip_task: false
+  tasks:
+
+
+
+
+# # # #     - name: Start IIS
+# # # #       ansible.windows.win_shell: net start W3SVC
+# # # #       when: skip_task
+# # # #       register: start_IIS
+      
+# # # #     - name: Stampa l'output del comando di start IIS
+# # # #       debug:
+# # # #         var: start_IIS.stdout_lines
+
+# # # #     - name: Controlla che IIS è stato startpato con successo
+# # # #       debug:
+# # # #         msg: "IIS è stato startpato con successo"
+# # # #       when: start_IIS.rc == 0
+
+# # # #     - name: Controlla che IIS non è stato startpato
+# # # #       fail: 
+# # # #         msg: "Errore: IIS non è stato startpato"
+# # # #       when: start_IIS.rc != 0
+# # # # #----------------------------------------------------------------------------------------------
+#
+#
+#    - name: Set fact
+#      set_fact:
+#        skip_task: 
+#          rc: 0
+#          
+
+#      when: skip_task
+
+    - name: Start IIS
+      ansible.windows.win_shell: iisreset /start
+      register: start_IIS
+#      when: skip_task
+ 
+
+
+    - name: Stampa l'output del comando di start IIS
+      debug:
+        var: start_IIS.stdout_lines
+#      when: skip_task
+
+    - name: Controlla che IIS è stato startpato con successo
+      debug:
+        msg: "IIS è stato startpato con successo"
+      when: (start_IIS.rc == 0) # and skip_task
+
+    - name: Controlla che IIS non è stato startpato
+      fail: 
+        msg: "Errore: IIS non è stato startpato"
+      when: (start_IIS.rc != 0) # and skip_task
+
+
+# # # #----------------------------------------------------------------------------------------------
+
+# # #     - name: Start WAS service
+# # #       win_service:
+# # #         name: WAS
+# # #         state: started
+
+# # #     - name: Start IIS service
+# # #       win_service:
+# # #         name: w3svc
+# # #         state: started
+
+
+#########################################################
+
+
+# To stop the web server, you must stop the Windows Process Activation Service (WAS) and the World Wide Web Publishing Service (W3SVC).
+
+
+
+#----------------------------------------#
+#             2- Stop IIS
+#----------------------------------------#
+
+
+
+
+#----------------------------------------------------------------------------------------------
+
+
+# - name: Stop and Start IIS and WAS services
+#   hosts: windows_servers
+#   tasks:
+#     - name: Stop IIS service
+#       win_service:
+#         name: w3svc
+#         state: stopped
+
+#     - name: Stop WAS service
+#       win_service:
+#         name: WAS
+#         state: stopped
+
+    # - name: Start WAS service
+    #   win_service:
+    #     name: WAS
+    #     state: started
+
+    # - name: Start IIS service
+    #   win_service:
+    #     name: w3svc
+    #     state: started
+
+
+
+
+
+
+
+# Using a command line
+# Open an elevated command-line window.
+
+# At the command prompt, type net stop WAS and press ENTER; type Y and then press ENTER to stop W3SVC as well.
+
+# To start the web server, type net start W3SVC and press ENTER to start both WAS and W3SVC.
+
+
+
+# #----------------------------------------
+# The following was tested for IIS 8.5 and Windows 8.1.
+
+# As of IIS 7, Windows recommends restarting IIS via net stop/start. Via the command prompt (as Administrator):
+
+# > net stop WAS
+# > net start W3SVC
+# net stop WAS will stop W3SVC as well. Then when starting, net start W3SVC will start WAS as a dependency.
+
+
+
+
+
+# #----------------------------------------#
+# IISRESET.EXE (c) Microsoft Corp. 1998-2005
+
+# Usage:
+# iisreset [computername]
+
+#     /RESTART            Stop and then restart all Internet services.
+#     /START              Start all Internet services.
+#     /STOP               Stop all Internet services.
+#     /REBOOT             Reboot the computer.
+#     /REBOOTONERROR      Reboot the computer if an error occurs when starting,
+#                         stopping, or restarting Internet services.
+#     /NOFORCE            Do not forcefully terminate Internet services if
+#                         attempting to stop them gracefully fails.
+#     /TIMEOUT:val        Specify the timeout value ( in seconds ) to wait for
+#                         a successful stop of Internet services. On expiration
+#                         of this timeout the computer can be rebooted if
+#                         the /REBOOTONERROR parameter is specified.
+#                         The default value is 20s for restart, 60s for stop,
+#                         and 0s for reboot.
+#     /STATUS             Display the status of all Internet services.
+#     /ENABLE             Enable restarting of Internet Services
+#                         on the local system.
+#     /DISABLE            Disable restarting of Internet Services
+#                         on the local system.
+
+
